@@ -1,0 +1,16 @@
+<h2>ยื่นคำขอเยียวยา</h2>
+
+<form method="post">
+  ชื่อ: <input name="fname"><br>
+  นามสกุล: <input name="lname"><br>
+  รายได้ต่อเดือน: <input name="income"><br>
+  <button type="submit">คำนวณ</button>
+</form>
+
+{% if amount %}
+<h3>เงินเยียวยาที่ได้รับ: {{ amount }} บาท</h3>
+{% if calc_date %}
+<p>วันที่คำนวณ: {{ calc_date }}</p>
+{% endif %}
+<a href="/claims">กลับหน้ารายการคำขอ</a>
+{% endif %}

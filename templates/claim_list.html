@@ -1,0 +1,14 @@
+<h2>รายการคำขอเยียวยา</h2>
+
+<table border="1">
+  <tr>
+    <th>Claim ID</th>
+    <th>สถานะ</th>
+  </tr>
+  {% for c in claims %}
+  <tr>
+    <td>{{ c[0] }}</td>
+    <td>{{ c[3] }}</td>
+  </tr>
+  {% endfor %}
+</table>

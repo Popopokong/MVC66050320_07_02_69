@@ -1,18 +1,16 @@
-import random
-from datetime import datetime
-from model.database import get_connection
+from model.general_claim import GeneralClaim
 from model.low_claim import LowClaim
 from model.high_claim import HighClaim
-from model.general_claim import GeneralClaim
-from view.claim_form import input_claim_data, show_compensation
-from view import claim_list
-
+from model.database import get_connection
+from datetime import datetime
+import random
 
 class ClaimController:
-    """Controller for creating and listing claims."""
 
-    def create_claim(self):
-        fname, lname, income = input_claim_data()
+    def create_claim_web(self, form):
+        fname = form["fname"]
+        lname = form["lname"]
+        income = float(form["income"])
 
         if income < 6500:
             model = LowClaim(income)
@@ -25,7 +23,6 @@ class ClaimController:
             ctype = "GENERAL"
 
         amount = model.calculate_compensation()
-        show_compensation(amount)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -34,33 +31,27 @@ class ClaimController:
             "INSERT INTO Claimants (first_name,last_name,monthly_income,claimant_type) VALUES (?,?,?,?)",
             (fname, lname, income, ctype)
         )
-        claimant_id = cur.lastrowid
 
+        claimant_id = cur.lastrowid
         claim_id = str(random.randint(10000000, 99999999))
         today = datetime.now().strftime("%Y-%m-%d")
 
-        cur.execute(
-            "INSERT INTO Claims VALUES (?,?,?,?)",
-            (claim_id, claimant_id, today, "CALCULATED")
-        )
+        cur.execute("INSERT INTO Claims VALUES (?,?,?,?)",
+                    (claim_id, claimant_id, today, "CALCULATED"))
 
-        cur.execute(
-            "INSERT INTO Compensations VALUES (?,?,?)",
-            (claim_id, amount, today)
-        )
+        cur.execute("INSERT INTO Compensations VALUES (?,?,?)",
+                    (claim_id, amount, today))
 
         conn.commit()
         conn.close()
 
-        print("บันทึกคำขอเรียบร้อย\n")
+        # return both calculated amount and calculation date for the web UI
+        return amount, today
 
-    def list_claims(self):
-        """Fetch claims from the DB and show them via the view helper."""
+    def list_claims_web(self):
         conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM Claims")
-        claims = cur.fetchall()
+        data = cur.fetchall()
         conn.close()
-
-        # call the view function from the claim_list module to avoid name collision
-        claim_list.show_claim_list(claims)
+        return data
