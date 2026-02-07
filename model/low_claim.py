@@ -1,4 +1,6 @@
-from model.claim import Claim 
+from model.claim import Claim
+
+
 class LowClaim(Claim):
     def calculate_compensation(self):
-        return min(self.income, 6500)
+         return max(self.income, 6500)
